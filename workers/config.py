@@ -4,8 +4,8 @@ from pathlib import Path
 # GPU 伺服器
 WHISPER_API_URL = os.getenv("WHISPER_API_URL", "http://localhost:9000")
 OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:32b-fp16")
-OLLAMA_MODEL_FAST = os.getenv("OLLAMA_MODEL_FAST", "qwen3:32b")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3.5:35b")
+OLLAMA_MODEL_FAST = os.getenv("OLLAMA_MODEL_FAST", "qwen3.5:27b")
 
 # Whisper 模型（whisperx-blackwell 內建 large-v3）
 
