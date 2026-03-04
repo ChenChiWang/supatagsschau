@@ -7,7 +7,7 @@
     -webkit-line-clamp: unset;
     overflow: visible;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .first-entry .entry-header.home-header-flex h1 {
@@ -15,13 +15,15 @@
     flex: 1;
 }
 
+/* 無邊框、無裁切，讓動畫自然融入背景 */
 #calabi-yau {
     flex-shrink: 0;
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: var(--theme);
+    width: 120px;
+    height: 120px;
+}
+
+#calabi-yau canvas {
+    display: block;
 }
 
 /* 小螢幕：動畫縮小置中到標題下方 */
@@ -32,7 +34,7 @@
     }
 
     #calabi-yau {
-        width: 150px;
-        height: 150px;
+        width: 100px;
+        height: 100px;
     }
 }

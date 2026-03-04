@@ -3,7 +3,7 @@
   var container = document.getElementById('calabi-yau');
   if (!container) return;
 
-  var SIZE = container.offsetWidth || 180;
+  var SIZE = 120;
 
   var script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js';
@@ -13,12 +13,12 @@
       var n = 5;
       var angle = 0;
 
-      // 從頁面背景色取得 RGBA，用於拖尾效果
-      function getBgRGBA(alpha) {
+      // 從頁面背景色取得 RGBA
+      function getBgRGBA(a) {
         var raw = getComputedStyle(document.body).backgroundColor;
         var m = raw.match(/(\d+)/g);
-        if (m) return 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',' + alpha + ')';
-        return 'rgba(29,30,32,' + alpha + ')';
+        if (m) return 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',' + a + ')';
+        return 'rgba(29,30,32,' + a + ')';
       }
 
       p.setup = function () {
@@ -26,10 +26,13 @@
         canvas.style('display', 'block');
         p.colorMode(p.HSB, 360, 100, 100, 100);
         p.noFill();
+        // 第一幀用完全不透明的背景色填滿，避免初始純黑
+        var ctx = p.drawingContext;
+        ctx.fillStyle = getBgRGBA(1);
+        ctx.fillRect(0, 0, p.width, p.height);
       };
 
       p.draw = function () {
-        // 用頁面背景色畫半透明拖尾，自動配合亮暗主題
         var ctx = p.drawingContext;
         ctx.fillStyle = getBgRGBA(0.25);
         ctx.fillRect(0, 0, p.width, p.height);
@@ -44,18 +47,18 @@
 
           p.beginShape();
           p.stroke(hue, 70, 100, 70);
-          p.strokeWeight(1.4);
+          p.strokeWeight(1.2);
 
           var steps = 200;
           for (var i = 0; i <= steps; i++) {
-            var alpha = (i / steps) * p.TWO_PI;
-            var z1Re = Math.cos(alpha);
-            var z1Im = Math.sin(alpha);
+            var a = (i / steps) * p.TWO_PI;
+            var z1Re = Math.cos(a);
+            var z1Im = Math.sin(a);
             var r = Math.pow(Math.sqrt(z1Re * z1Re + z1Im * z1Im), 1 / n);
             var theta = (Math.atan2(z1Im, z1Re) + 2 * Math.PI * k) / n;
             var x = r * Math.cos(theta + angle * 0.5);
             var y = r * Math.sin(theta + angle * 0.3);
-            var twist = Math.sin(alpha * n + angle * 2) * 0.3;
+            var twist = Math.sin(a * n + angle * 2) * 0.3;
             var px = (x * Math.cos(twist) - y * Math.sin(twist)) * scale;
             var py = (x * Math.sin(twist) + y * Math.cos(twist)) * scale;
             p.vertex(px, py);
@@ -64,15 +67,15 @@
 
           p.beginShape();
           p.stroke(hue, 50, 85, 40);
-          p.strokeWeight(0.8);
+          p.strokeWeight(0.7);
 
           for (var j = 0; j <= steps; j++) {
-            var alpha2 = (j / steps) * p.TWO_PI;
-            var r2 = Math.pow(0.7 + 0.3 * Math.sin(alpha2 * n), 1 / n);
-            var theta2 = (alpha2 + 2 * Math.PI * k) / n;
+            var a2 = (j / steps) * p.TWO_PI;
+            var r2 = Math.pow(0.7 + 0.3 * Math.sin(a2 * n), 1 / n);
+            var theta2 = (a2 + 2 * Math.PI * k) / n;
             var x2 = r2 * Math.cos(theta2 + angle * 0.7);
             var y2 = r2 * Math.sin(theta2 + angle * 0.5);
-            var twist2 = Math.cos(alpha2 * n - angle) * 0.4;
+            var twist2 = Math.cos(a2 * n - angle) * 0.4;
             var px2 = (x2 * Math.cos(twist2) - y2 * Math.sin(twist2)) * scale * 0.8;
             var py2 = (x2 * Math.sin(twist2) + y2 * Math.cos(twist2)) * scale * 0.8;
             p.vertex(px2, py2);
