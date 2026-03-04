@@ -1,4 +1,4 @@
-baseURL = "https://tagesschau.jwais.com/"
+baseURL = "https://supatagsschau.jwais.com/"
 languageCode = "zh-tw"
 title = "每日德語 — tagesschau 新聞學德文"
 theme = "PaperMod"

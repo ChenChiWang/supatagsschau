@@ -1,0 +1,15 @@
+{{- with site.Params.homeInfoParams }}
+<article class="first-entry home-info">
+    <header class="entry-header home-header-flex">
+        <h1>{{ .Title | markdownify }}</h1>
+        <div id="calabi-yau"></div>
+    </header>
+    <div class="entry-content">
+        {{ .Content | markdownify }}
+    </div>
+    <footer class="entry-footer">
+        {{ partial "social_icons.html" (dict "align" site.Params.homeInfoParams.AlignSocialIconsTo) }}
+    </footer>
+</article>
+<script src="/js/calabi-yau.js" defer></script>
+{{- end -}}

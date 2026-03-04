@@ -1,0 +1,27 @@
+/* Calabi-Yau 流形動畫 — 首頁標題旁 */
+.home-header-flex {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#calabi-yau {
+    flex-shrink: 0;
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+/* 小螢幕：動畫置中放到標題下方 */
+@media (max-width: 640px) {
+    .home-header-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #calabi-yau {
+        width: 180px;
+        height: 180px;
+    }
+}
