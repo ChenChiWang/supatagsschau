@@ -12,13 +12,14 @@
 
 .first-entry .entry-header.home-header-flex h1 {
     -webkit-line-clamp: unset;
-    flex: 1;
+    flex: 0 0 auto;
 }
 
-/* 無邊框、無裁切，讓動畫自然融入背景 */
+/* 佔據標題右側剩餘空間，canvas 置中顯示 */
 #calabi-yau {
-    flex-shrink: 0;
-    width: 120px;
+    flex: 1;
+    display: flex;
+    justify-content: center;
     height: 120px;
 }
 
