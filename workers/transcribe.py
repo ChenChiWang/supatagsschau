@@ -29,6 +29,7 @@ def transcribe(mp3_path: Path) -> list[dict]:
     client = OpenAI(
         base_url=f"{config.WHISPER_API_URL}/v1",
         api_key="not-needed",
+        timeout=1800.0,  # 30 分鐘，CPU 模式下轉錄較慢
     )
 
     logger.info(f"送出音訊到 Whisper API：{mp3_path}")
