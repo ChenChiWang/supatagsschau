@@ -27,15 +27,9 @@
     display: block;
 }
 
-/* 小螢幕：動畫縮小置中到標題下方 */
+/* 小螢幕：隱藏動畫，讓標題完整呈現 */
 @media (max-width: 640px) {
-    .first-entry .entry-header.home-header-flex {
-        flex-direction: column;
-        align-items: center;
-    }
-
     #calabi-yau {
-        width: 100px;
-        height: 100px;
+        display: none;
     }
 }
