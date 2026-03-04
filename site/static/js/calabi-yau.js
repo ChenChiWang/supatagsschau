@@ -1,8 +1,9 @@
 // Calabi-Yau 流形動畫（p5.js）— 首頁標題旁裝飾
 (function () {
-  var SIZE = 230;
   var container = document.getElementById('calabi-yau');
   if (!container) return;
+
+  var SIZE = container.offsetWidth || 180;
 
   var script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js';
@@ -12,6 +13,14 @@
       var n = 5;
       var angle = 0;
 
+      // 從頁面背景色取得 RGBA，用於拖尾效果
+      function getBgRGBA(alpha) {
+        var raw = getComputedStyle(document.body).backgroundColor;
+        var m = raw.match(/(\d+)/g);
+        if (m) return 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',' + alpha + ')';
+        return 'rgba(29,30,32,' + alpha + ')';
+      }
+
       p.setup = function () {
         var canvas = p.createCanvas(SIZE, SIZE);
         canvas.style('display', 'block');
@@ -20,7 +29,11 @@
       };
 
       p.draw = function () {
-        p.background(215, 43, 9, 25);
+        // 用頁面背景色畫半透明拖尾，自動配合亮暗主題
+        var ctx = p.drawingContext;
+        ctx.fillStyle = getBgRGBA(0.25);
+        ctx.fillRect(0, 0, p.width, p.height);
+
         p.translate(p.width / 2, p.height / 2);
         p.rotate(angle * 0.1);
 
