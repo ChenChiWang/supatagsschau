@@ -26,7 +26,7 @@ def call_ollama(prompt: str, temperature: float = 0.3) -> str:
                 "num_predict": 8192,
             },
         },
-        timeout=600,
+        timeout=1800,
     )
     resp.raise_for_status()
     return resp.json()["response"]
