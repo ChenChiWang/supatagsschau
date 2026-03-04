@@ -1,6 +1,7 @@
 """解析 Tagesschau 20 Uhr Podcast RSS feed，取得最新一集的 metadata 並下載 MP3。"""
 
 import logging
+import os
 import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -88,11 +89,14 @@ def fetch_podcast() -> dict:
     """主函式：取得今天的 Podcast metadata 並下載 MP3。
 
     含重試機制：若最新集不是今天的，等待後重試。
+    設定環境變數 SKIP_DATE_CHECK=1 可跳過日期檢查（測試用）。
 
     回傳 dict 包含：
         title, pub_date, description, audio_url, video_url,
         duration, guid, mp3_path, topics
     """
+    skip_date = os.getenv("SKIP_DATE_CHECK", "") == "1"
+
     for attempt in range(1, config.MAX_RETRIES + 1):
         logger.info(f"嘗試取得 Podcast（第 {attempt}/{config.MAX_RETRIES} 次）")
 
@@ -102,6 +106,10 @@ def fetch_podcast() -> dict:
 
         audio_ep = get_latest_episode(audio_feed)
         video_ep = get_latest_episode(video_feed)
+
+        if skip_date:
+            logger.info(f"跳過日期檢查，使用最新集數：{audio_ep['title']}")
+            break
 
         if is_today(audio_ep["pub_date"]):
             logger.info(f"找到今天的集數：{audio_ep['title']}")
