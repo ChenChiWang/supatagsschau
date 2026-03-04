@@ -1,0 +1,27 @@
+# 環境與機密
+.env
+ssh-keys/
+
+# 暫存輸出
+output/
+*.mp3
+*.mp4
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Hugo 建置產出
+site/public/
+site/resources/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,62 @@
+baseURL = "https://tagesschau.jwais.com/"
+languageCode = "zh-tw"
+title = "每日德語 — tagesschau 新聞學德文"
+theme = "PaperMod"
+paginate = 10
+
+[params]
+  env = "production"
+  description = "每天用 tagesschau 德語新聞學德文，AI 自動產生逐字稿、翻譯和 CEFR 分級學習內容"
+  author = "每日德語"
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowBreadCrumbs = true
+  ShowPostNavLinks = true
+  ShowShareButtons = false
+  ShowCodeCopyButtons = false
+  disableSpecial1stPost = true
+
+  [params.homeInfoParams]
+    Title = "每日德語 — 用新聞學德文"
+    Content = "每天自動擷取 tagesschau 20 Uhr 新聞 Podcast，透過 AI 產生德語逐字稿、繁中翻譯和 CEFR 分級學習內容（A1/A2/B1）。"
+
+  [[params.socialIcons]]
+    name = "rss"
+    url = "/index.xml"
+
+[taxonomies]
+  tag = "tags"
+  level = "levels"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[[menu.main]]
+  name = "每日新聞"
+  url = "/"
+  weight = 1
+
+[[menu.main]]
+  name = "🟢 A1 入門"
+  url = "/levels/a1/"
+  weight = 2
+
+[[menu.main]]
+  name = "🟡 A2 初級"
+  url = "/levels/a2/"
+  weight = 3
+
+[[menu.main]]
+  name = "🔴 B1 中級"
+  url = "/levels/b1/"
+  weight = 4
+
+[[menu.main]]
+  name = "所有標籤"
+  url = "/tags/"
+  weight = 5

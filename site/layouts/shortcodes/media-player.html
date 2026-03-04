@@ -1,0 +1,28 @@
+{{/* 影片+音訊播放器，支援切換模式 */}}
+{{ $video_url := .Page.Params.video_url }}
+{{ $audio_url := .Page.Params.audio_url }}
+
+<div class="media-player" id="media-player">
+  <div class="player-controls">
+    <button class="player-toggle active" data-mode="video" onclick="switchPlayer('video')">📺 影片</button>
+    <button class="player-toggle" data-mode="audio" onclick="switchPlayer('audio')">🎧 純音訊</button>
+  </div>
+
+  {{ with $video_url }}
+  <div class="player-container" id="video-container">
+    <video id="video-player" controls preload="metadata" width="100%">
+      <source src="{{ . }}" type="video/mp4">
+      瀏覽器不支援影片播放
+    </video>
+  </div>
+  {{ end }}
+
+  {{ with $audio_url }}
+  <div class="player-container" id="audio-container" style="display:none;">
+    <audio id="audio-player" controls preload="metadata" style="width:100%;">
+      <source src="{{ . }}" type="audio/mpeg">
+      瀏覽器不支援音訊播放
+    </audio>
+  </div>
+  {{ end }}
+</div>

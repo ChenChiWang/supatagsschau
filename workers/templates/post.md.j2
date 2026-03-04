@@ -1,0 +1,170 @@
+---
+title: "{{ title }}"
+date: {{ date_iso }}
+draft: false
+tags:
+{%- for topic in topics %}
+  - "{{ topic }}"
+{%- endfor %}
+levels:
+{%- for level in active_levels %}
+  - {{ level }}
+{%- endfor %}
+video_url: "{{ video_url }}"
+audio_url: "{{ audio_url }}"
+summary: "{{ topics[:3] | join('、') }}"
+---
+
+{{</* media-player */>}}
+
+## 📝 逐字稿 Transkript
+
+<div class="transcript-table">
+
+| 時間 | Deutsch | 中文翻譯 |
+|:-----|:--------|:---------|
+{%- for seg in segments %}
+| <span class="ts-link" data-time="{{ seg.start }}">{{ seg.start }}</span> | {{ seg.de | replace("|", "｜") }} | {{ seg.zh | replace("|", "｜") }} |
+{%- endfor %}
+
+</div>
+
+{% if levels.get("A1") and (levels.A1.vocabulary or levels.A1.grammar or levels.A1.patterns) %}
+---
+
+## 🟢 A1 — 初學者區 Anfänger
+
+{% if levels.A1.vocabulary %}
+### 📖 單字 Wortschatz
+
+| 單字 | 詞性/冠詞 | 中文 | 例句 | 例句翻譯 |
+|:-----|:----------|:-----|:-----|:---------|
+{%- for v in levels.A1.vocabulary %}
+| **{{ v.word }}** | {{ v.article or "" }} | {{ v.meaning }} | {{ v.example | replace("|", "｜") }} | {{ v.example_zh | replace("|", "｜") }} |
+{%- endfor %}
+
+{% endif %}
+{% if levels.A1.grammar %}
+### 📝 文法 Grammatik
+
+{% for g in levels.A1.grammar %}
+<details>
+<summary><strong>{{ g.rule }}</strong></summary>
+
+> **德文**：{{ g.german }}
+>
+> **中文**：{{ g.chinese }}
+
+{{ g.explanation }}
+
+</details>
+
+{% endfor %}
+{% endif %}
+{% if levels.A1.patterns %}
+### 💬 句型 Satzmuster
+
+{% for p in levels.A1.patterns %}
+- **{{ p.pattern }}**
+  - 🇩🇪 {{ p.example }}
+  - 🇹🇼 {{ p.translation }}
+  - 💡 {{ p.note }}
+
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if levels.get("A2") and (levels.A2.vocabulary or levels.A2.grammar or levels.A2.patterns) %}
+---
+
+## 🟡 A2 — 初級區 Grundstufe
+
+{% if levels.A2.vocabulary %}
+### 📖 單字 Wortschatz
+
+| 單字 | 詞性/冠詞 | 中文 | 例句 | 例句翻譯 |
+|:-----|:----------|:-----|:-----|:---------|
+{%- for v in levels.A2.vocabulary %}
+| **{{ v.word }}** | {{ v.article or "" }} | {{ v.meaning }} | {{ v.example | replace("|", "｜") }} | {{ v.example_zh | replace("|", "｜") }} |
+{%- endfor %}
+
+{% endif %}
+{% if levels.A2.grammar %}
+### 📝 文法 Grammatik
+
+{% for g in levels.A2.grammar %}
+<details>
+<summary><strong>{{ g.rule }}</strong></summary>
+
+> **德文**：{{ g.german }}
+>
+> **中文**：{{ g.chinese }}
+
+{{ g.explanation }}
+
+</details>
+
+{% endfor %}
+{% endif %}
+{% if levels.A2.patterns %}
+### 💬 句型 Satzmuster
+
+{% for p in levels.A2.patterns %}
+- **{{ p.pattern }}**
+  - 🇩🇪 {{ p.example }}
+  - 🇹🇼 {{ p.translation }}
+  - 💡 {{ p.note }}
+
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if levels.get("B1") and (levels.B1.vocabulary or levels.B1.grammar or levels.B1.patterns) %}
+---
+
+## 🔴 B1 — 中級區 Mittelstufe
+
+{% if levels.B1.vocabulary %}
+### 📖 單字 Wortschatz
+
+| 單字 | 詞性/冠詞 | 中文 | 例句 | 例句翻譯 |
+|:-----|:----------|:-----|:-----|:---------|
+{%- for v in levels.B1.vocabulary %}
+| **{{ v.word }}** | {{ v.article or "" }} | {{ v.meaning }} | {{ v.example | replace("|", "｜") }} | {{ v.example_zh | replace("|", "｜") }} |
+{%- endfor %}
+
+{% endif %}
+{% if levels.B1.grammar %}
+### 📝 文法 Grammatik
+
+{% for g in levels.B1.grammar %}
+<details>
+<summary><strong>{{ g.rule }}</strong></summary>
+
+> **德文**：{{ g.german }}
+>
+> **中文**：{{ g.chinese }}
+
+{{ g.explanation }}
+
+</details>
+
+{% endfor %}
+{% endif %}
+{% if levels.B1.patterns %}
+### 💬 句型 Satzmuster
+
+{% for p in levels.B1.patterns %}
+- **{{ p.pattern }}**
+  - 🇩🇪 {{ p.example }}
+  - 🇹🇼 {{ p.translation }}
+  - 💡 {{ p.note }}
+
+{% endfor %}
+{% endif %}
+{% endif %}
+
+---
+
+*📺 來源：[tagesschau.de](https://www.tagesschau.de/) | [本集原始連結]({{ link }})*
+*⚠️ 本頁內容由 AI 自動產生，僅供語言學習參考，不代表 ARD/tagesschau 立場。*

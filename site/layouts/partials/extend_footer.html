@@ -1,0 +1,4 @@
+{{/* 注入播放器 JS（只在有 audio_url 的文章頁面載入） */}}
+{{ if .Params.audio_url }}
+<script src="/js/player.js"></script>
+{{ end }}

@@ -1,0 +1,124 @@
+/* === 播放器 === */
+.media-player {
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  background: var(--code-bg);
+}
+
+.player-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.player-toggle {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.player-toggle.active {
+  background: var(--primary);
+  color: var(--theme);
+  border-color: var(--primary);
+}
+
+/* === 時間戳連結 === */
+.ts-link {
+  color: var(--primary);
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.ts-link:hover {
+  text-decoration: underline;
+}
+
+/* === 逐字稿表格 === */
+.transcript-table table {
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.transcript-table td:first-child {
+  width: 60px;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+/* === CEFR 等級標題 === */
+h2:has(+ .level-a1),
+h2:nth-of-type(2) {
+  border-left: 4px solid #4caf50;
+  padding-left: 0.5rem;
+}
+
+/* A1 綠色 */
+h2:where([id*="a1"]) {
+  border-left: 4px solid #4caf50;
+  padding-left: 0.5rem;
+}
+
+/* A2 黃色 */
+h2:where([id*="a2"]) {
+  border-left: 4px solid #ff9800;
+  padding-left: 0.5rem;
+}
+
+/* B1 紅色 */
+h2:where([id*="b1"]) {
+  border-left: 4px solid #f44336;
+  padding-left: 0.5rem;
+}
+
+/* === 折疊區塊（文法解說） === */
+details {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--code-bg);
+}
+
+details summary {
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+details[open] summary {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* === 單字表格 === */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table th,
+table td {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+table th {
+  background: var(--code-bg);
+  font-weight: 600;
+}
+
+/* === 句型列表 === */
+.post-content ul li strong {
+  color: var(--primary);
+}
