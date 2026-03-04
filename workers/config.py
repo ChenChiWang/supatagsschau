@@ -6,8 +6,7 @@ WHISPER_API_URL = os.getenv("WHISPER_API_URL", "http://localhost:9000")
 OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:32b-fp16")
 
-# Whisper 模型（Speaches 用 HuggingFace 模型名稱）
-WHISPER_MODEL = "Systran/faster-whisper-large-v3"
+# Whisper 模型（whisperx-blackwell 內建 large-v3）
 
 # Hugo 網站 Git Repo
 HUGO_SITE_REPO = os.getenv("HUGO_SITE_REPO", "")

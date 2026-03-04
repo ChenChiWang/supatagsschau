@@ -33,14 +33,12 @@ services:
       - gpu-network
 
   whisper:
-    image: ghcr.io/speaches-ai/speaches:latest-cuda
+    image: mekopa/whisperx-blackwell:latest
     container_name: whisper
     ports:
-      - "9000:8000"
+      - "9000:8003"
     environment:
-      - WHISPER__MODEL=Systran/faster-whisper-large-v3
-    volumes:
-      - whisper_cache:/home/ubuntu/.cache/huggingface/hub
+      - HF_TOKEN=${HF_TOKEN:-}
     ipc: host
     shm_size: "16g"
     ulimits:
@@ -75,7 +73,6 @@ services:
 
 volumes:
   ollama_data:
-  whisper_cache:
 
 networks:
   gpu-network:

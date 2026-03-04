@@ -8,8 +8,8 @@
 ┌──────────────────────────────────────────────────────┐
 │  GPU 伺服器 (Docker)                                  │
 │  ┌─────────────────┐  ┌───────────────────────────┐  │
-│  │  Ollama :11434   │  │  Whisper (Speaches) :9000 │  │
-│  │  qwen3:32b-fp16      │  │  faster-whisper-large-v3  │  │
+│  │  Ollama :11434   │  │  WhisperX :9000           │  │
+│  │  qwen3:32b-fp16  │  │  whisper-large-v3 (GPU)   │  │
 │  └─────────────────┘  └───────────────────────────┘  │
 └──────────────────────────────────────────────────────┘
          ▲                        ▲
@@ -52,7 +52,7 @@ docker compose -f docker-compose.gpu.yml up -d
 docker exec ollama ollama pull qwen3:32b-fp16
 
 # 測試 Whisper API
-curl http://localhost:9000/v1/models
+curl http://localhost:9000/health
 
 # 測試 Ollama
 curl http://localhost:11434/api/tags
@@ -108,8 +108,7 @@ hugo server -D
 | 元件 | 版本 |
 |------|------|
 | Ollama | `0.17.5` |
-| Speaches (Whisper) | `latest-cuda` |
-| Whisper 模型 | `Systran/faster-whisper-large-v3` |
+| WhisperX (Blackwell) | `mekopa/whisperx-blackwell:latest` |
 | Ollama 模型 | `qwen3:32b-fp16` |
 | Hugo Extended | `0.157.0` |
 | PaperMod 主題 | `v8.0` |
