@@ -22,7 +22,7 @@ def call_ollama(prompt: str, temperature: float = 0.3, model: str = None) -> str
         f"{config.OLLAMA_API_URL}/api/generate",
         json={
             "model": use_model,
-            "prompt": prompt,
+            "prompt": "/no_think\n" + prompt,
             "stream": False,
             "options": {
                 "temperature": temperature,
