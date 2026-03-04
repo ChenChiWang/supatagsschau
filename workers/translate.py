@@ -1,4 +1,5 @@
-"""用 Ollama (qwen3:72b) 翻譯逐字稿並分析 CEFR 學習內容。"""
+"""用 Ollama 翻譯逐字稿並分析 CEFR 學習內容。
+翻譯用量化版模型（快），CEFR 分析用 fp16（精準）。"""
 
 import json
 import logging
@@ -14,12 +15,13 @@ logger = logging.getLogger(__name__)
 BATCH_SIZE = 8
 
 
-def call_ollama(prompt: str, temperature: float = 0.3) -> str:
+def call_ollama(prompt: str, temperature: float = 0.3, model: str = None) -> str:
     """呼叫 Ollama API，回傳生成的文字。"""
+    use_model = model or config.OLLAMA_MODEL
     resp = requests.post(
         f"{config.OLLAMA_API_URL}/api/generate",
         json={
-            "model": config.OLLAMA_MODEL,
+            "model": use_model,
             "prompt": prompt,
             "stream": False,
             "options": {
@@ -55,11 +57,10 @@ def translate_batch(segments: list[dict]) -> list[dict]:
 德語逐字稿：
 {segments_text}"""
 
-    result = call_ollama(prompt)
+    result = call_ollama(prompt, model=config.OLLAMA_MODEL_FAST)
 
     # 從回應中擷取 JSON
     try:
-        # 嘗試找到 JSON 陣列
         start_idx = result.index("[")
         end_idx = result.rindex("]") + 1
         translated = json.loads(result[start_idx:end_idx])
