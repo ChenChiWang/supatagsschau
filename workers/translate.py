@@ -103,8 +103,11 @@ def analyze_cefr(timestamped_transcript: str) -> dict:
 - 文法術語一律使用德文原文：Nominativ、Akkusativ、Dativ、Genitiv（不要用「第一格、第二格、第三格、第四格」）
 - 動詞搭配格位時寫法範例：「接 Akkusativ」「與 Dativ 搭配」「支配 Genitiv」
 
+另外，請在 JSON 最外層加一個 "summary_zh" 欄位，用 3-5 句繁體中文摘要本集新聞重點。
+
 請只輸出 JSON，格式如下：
 {{
+  "summary_zh": "本集新聞的繁體中文摘要（3-5 句）",
   "A1": {{
     "vocabulary": [
       {{"word": "德文單字", "article": "der/die/das（名詞才需要）", "meaning": "中文意思", "example": "逐字稿中的例句", "example_zh": "例句翻譯", "time": "MM:SS"}}
@@ -128,17 +131,20 @@ def analyze_cefr(timestamped_transcript: str) -> dict:
     try:
         start_idx = result.index("{")
         end_idx = result.rindex("}") + 1
-        levels = json.loads(result[start_idx:end_idx])
+        data = json.loads(result[start_idx:end_idx])
     except (ValueError, json.JSONDecodeError) as e:
         logger.error(f"CEFR 分析結果 JSON 解析失敗：{e}")
         logger.error(f"原始回應：{result[:500]}")
-        levels = {
+        data = {
+            "summary_zh": "",
             "A1": {"vocabulary": [], "grammar": [], "patterns": []},
             "A2": {"vocabulary": [], "grammar": [], "patterns": []},
             "B1": {"vocabulary": [], "grammar": [], "patterns": []},
         }
 
-    return levels
+    # 分離 summary_zh 和等級資料
+    summary_zh = data.pop("summary_zh", "")
+    return {"summary_zh": summary_zh, "levels": data}
 
 
 def translate_and_analyze(segments: list[dict]) -> dict:
@@ -169,9 +175,10 @@ def translate_and_analyze(segments: list[dict]) -> dict:
         f"[{s['start']}] {s['text']}" for s in segments
     )
     logger.info("開始 CEFR 學習內容分析...")
-    levels = analyze_cefr(timestamped_transcript)
+    cefr_result = analyze_cefr(timestamped_transcript)
 
     return {
         "segments": all_translated,
-        "levels": levels,
+        "levels": cefr_result["levels"],
+        "summary_zh": cefr_result["summary_zh"],
     }

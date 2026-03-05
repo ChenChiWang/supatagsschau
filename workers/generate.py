@@ -58,6 +58,7 @@ def generate_post(podcast_meta: dict, translation_result: dict) -> Path:
         link=podcast_meta["link"],
         segments=translation_result["segments"],
         levels=levels,
+        summary_zh=translation_result.get("summary_zh", ""),
     )
 
     output_path = config.OUTPUT_DIR / f"{date_str}-tagesschau.md"

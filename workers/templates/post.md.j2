@@ -22,14 +22,32 @@ summary: "{{ topics[:3] | join('、') }}"
 </script>
 
 <div class="cefr-tabs">
-  <button class="cefr-tab active" data-level="transcript">📝 逐字稿</button>
-  <button class="cefr-tab" data-level="summary">📋 摘要</button>
+  <button class="cefr-tab active" data-level="summary">📋 摘要</button>
+  <button class="cefr-tab" data-level="transcript">📝 逐字稿</button>
 {%- for level in active_levels %}
   <button class="cefr-tab" data-level="{{ level }}">{% if level == "A1" %}🟢 A1{% elif level == "A2" %}🟡 A2{% elif level == "B1" %}🔴 B1{% endif %}</button>
 {%- endfor %}
 </div>
 
-<div class="cefr-content active" data-level="transcript">
+<div class="cefr-content active" data-level="summary">
+
+{% if summary_zh %}
+{{ summary_zh }}
+{% endif %}
+
+{% if active_levels %}
+#### 📊 學習內容總覽
+
+| 等級 | 單字 | 文法 | 句型 |
+|:-----|:-----|:-----|:-----|
+{%- for level in active_levels %}
+| {% if level == "A1" %}🟢{% elif level == "A2" %}🟡{% elif level == "B1" %}🔴{% endif %} {{ level }} | {{ levels[level].vocabulary | length }} 個 | {{ levels[level].grammar | length }} 個 | {{ levels[level].patterns | length }} 個 |
+{%- endfor %}
+{% endif %}
+
+</div>
+
+<div class="cefr-content" data-level="transcript">
 
 <div class="transcript-table">
 
@@ -42,29 +60,6 @@ summary: "{{ topics[:3] | join('、') }}"
 </div>
 
 </div>
-
-{% if active_levels %}
-<div class="cefr-content" data-level="summary">
-
-### 📋 本集摘要 Zusammenfassung
-
-**{{ title }}**
-
-本集主題：
-{% for topic in topics %}
-- {{ topic }}
-{%- endfor %}
-
-#### 📊 學習內容總覽
-
-| 等級 | 單字 | 文法 | 句型 |
-|:-----|:-----|:-----|:-----|
-{%- for level in active_levels %}
-| {% if level == "A1" %}🟢{% elif level == "A2" %}🟡{% elif level == "B1" %}🔴{% endif %} {{ level }} | {{ levels[level].vocabulary | length }} 個 | {{ levels[level].grammar | length }} 個 | {{ levels[level].patterns | length }} 個 |
-{%- endfor %}
-
-</div>
-{% endif %}
 
 {% if levels.get("A1") and (levels.A1.vocabulary or levels.A1.grammar or levels.A1.patterns) %}
 <div class="cefr-content" data-level="A1">
