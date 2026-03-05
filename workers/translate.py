@@ -18,7 +18,7 @@ BATCH_SIZE = 8
 # CEFR 分析需要更大的 context 和 output
 CEFR_NUM_CTX = 32768
 CEFR_NUM_PREDICT = 16384
-CEFR_MAX_RETRIES = 2
+CEFR_MAX_RETRIES = 3
 
 
 def call_ollama(
@@ -204,8 +204,31 @@ def translate_batch(segments: list[dict]) -> list[dict]:
     return translated
 
 
+def merge_split_strings(text: str) -> str:
+    """修復 LLM 把一個 JSON 字串值拆成多個逗號分隔字串的問題。
+
+    常見於 summary_zh 欄位：
+      "summary_zh": "第一條",\n"第二條",\n"第三條",\n  "A1": ...
+    修復為：
+      "summary_zh": "第一條\\n第二條\\n第三條",\n  "A1": ...
+    """
+    # 匹配模式：一個 key 後面跟著多個逗號分隔的裸字串（不帶 key）
+    # "key": "val1",\n"val2",\n"val3"  →  "key": "val1\nval2\nval3"
+    def fix_match(m):
+        key_part = m.group(1)  # "key": 的部分
+        raw = m.group(2)       # "val1",\n"val2",\n"val3" 的部分
+        # 提取每個引號內的字串
+        parts = re.findall(r'"((?:[^"\\]|\\.)*)"', raw)
+        merged = "\\n".join(parts)
+        return f'{key_part}"{merged}"'
+
+    # 偵測 "key": "...",\n"..." 的連續模式（後面接的不是 key:value 而是裸字串）
+    pattern = r'("(?:summary_zh|[^"]*)":\s*)((?:"(?:[^"\\]|\\.)*"\s*,\s*\n?\s*){2,}"(?:[^"\\]|\\.)*")'
+    return re.sub(pattern, fix_match, text)
+
+
 def parse_llm_json(text: str) -> dict:
-    """解析 LLM 回傳的 JSON，依序嘗試：直接解析 → 修復換行 → 修復截斷。"""
+    """解析 LLM 回傳的 JSON，依序嘗試多種修復策略。"""
     # 1. 直接解析
     try:
         start_idx = text.index("{")
@@ -223,9 +246,20 @@ def parse_llm_json(text: str) -> dict:
     except (ValueError, json.JSONDecodeError):
         pass
 
-    # 3. 修復換行 + 修復截斷
+    # 3. 合併被拆散的字串（如 summary_zh 被拆成多行）
     try:
-        fixed = fix_json_newlines(text)
+        merged = merge_split_strings(text)
+        fixed = fix_json_newlines(merged)
+        start_idx = fixed.index("{")
+        end_idx = fixed.rindex("}") + 1
+        return json.loads(fixed[start_idx:end_idx])
+    except (ValueError, json.JSONDecodeError):
+        pass
+
+    # 4. 全部修復 + 修復截斷
+    try:
+        merged = merge_split_strings(text)
+        fixed = fix_json_newlines(merged)
         repaired = repair_json(fixed)
         return json.loads(repaired)
     except (ValueError, json.JSONDecodeError):
