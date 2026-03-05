@@ -100,6 +100,8 @@ def analyze_cefr(timestamped_transcript: str) -> dict:
 - 如果某等級找不到好例子，寧可少放也不要硬湊
 - 名詞務必標注性別（der/die/das）
 - 每個例句必須附上對應的時間戳（time 欄位，格式 MM:SS），從逐字稿的時間標記中取得
+- 文法術語一律使用德文原文：Nominativ、Akkusativ、Dativ、Genitiv（不要用「第一格、第二格、第三格、第四格」）
+- 動詞搭配格位時寫法範例：「接 Akkusativ」「與 Dativ 搭配」「支配 Genitiv」
 
 請只輸出 JSON，格式如下：
 {{
