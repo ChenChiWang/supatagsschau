@@ -56,7 +56,7 @@ def publish_post(md_path: Path, pub_date_str: str) -> None:
         pub_date_str: 日期字串（用於 commit message，如 2026-03-02）
     """
     repo_dir = ensure_repo()
-    posts_dir = repo_dir / "content" / "posts"
+    posts_dir = repo_dir / "site" / "content" / "posts"
     posts_dir.mkdir(parents=True, exist_ok=True)
 
     # 複製文章到 repo
@@ -65,7 +65,7 @@ def publish_post(md_path: Path, pub_date_str: str) -> None:
     logger.info(f"文章已複製到 {dest}")
 
     # git add + commit + push
-    run_git("add", f"content/posts/{md_path.name}", cwd=repo_dir)
+    run_git("add", f"site/content/posts/{md_path.name}", cwd=repo_dir)
 
     # 檢查是否有變更
     status = run_git("status", "--porcelain", cwd=repo_dir)
