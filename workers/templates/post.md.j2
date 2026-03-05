@@ -36,13 +36,7 @@ summary: "{{ topics[:3] | join('、') }}"
 {% endif %}
 
 {% if active_levels %}
-#### 📊 學習內容總覽
-
-| 等級 | 單字 | 文法 | 句型 |
-|:-----|:-----|:-----|:-----|
-{%- for level in active_levels %}
-| {% if level == "A1" %}🟢{% elif level == "A2" %}🟡{% elif level == "B1" %}🔴{% endif %} {{ level }} | {{ levels[level].vocabulary | length }} 個 | {{ levels[level].grammar | length }} 個 | {{ levels[level].patterns | length }} 個 |
-{%- endfor %}
+<p class="cefr-hint">📊 本集學習內容：{%- for level in active_levels %}{% if level == "A1" %} 🟢 A1{% elif level == "A2" %} 🟡 A2{% elif level == "B1" %} 🔴 B1{% endif %}（{{ levels[level].vocabulary | length }} 單字 · {{ levels[level].grammar | length }} 文法 · {{ levels[level].patterns | length }} 句型）{%- endfor %} — 點擊上方分頁查看</p>
 {% endif %}
 
 </div>

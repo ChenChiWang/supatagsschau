@@ -228,10 +228,14 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 1.5rem;
 }
 
-/* 摘要總覽表格 — 緊湊精簡 */
-.cefr-content[data-level="summary"] table {
-  max-width: 400px;
-  font-size: 0.875rem;
+/* 摘要底部學習提示 */
+.cefr-hint {
+  font-size: 0.8125rem;
+  color: var(--secondary);
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  line-height: 1.7;
 }
 
 /* === 表格通用 === */
