@@ -43,37 +43,52 @@ summary: "{{ topics[:3] | join('、') }}"
 
 <div class="cefr-content" data-level="transcript">
 
-<div class="transcript-table">
-
-| 時間 | Deutsch | 中文翻譯 |
-|:-----|:--------|:---------|
+<div class="transcript-list">
 {%- for seg in segments %}
-| <span class="ts-link" data-time="{{ seg.start }}">{{ seg.start }}</span> | {{ seg.de | replace("|", "｜") }} | {{ seg.zh | replace("|", "｜") }} |
+<div class="transcript-row">
+<span class="ts-link" data-time="{{ seg.start }}">{{ seg.start }}</span>
+<div class="transcript-text">
+<div class="transcript-de">{{ seg.de }}</div>
+<div class="transcript-zh">{{ seg.zh }}</div>
+</div>
+</div>
 {%- endfor %}
-
 </div>
 
 </div>
 
-{% if levels.get("A1") and (levels.A1.vocabulary or levels.A1.grammar or levels.A1.patterns) %}
-<div class="cefr-content" data-level="A1">
+{# --- 用 macro 避免三個等級重複寫 --- #}
+{% macro render_level(level_key, level_data, emoji, label_zh, label_de) %}
+{% if level_data and (level_data.vocabulary or level_data.grammar or level_data.patterns) %}
+<div class="cefr-content" data-level="{{ level_key }}">
 
-### 🟢 A1 — 初學者區 Anfänger
+### {{ emoji }} {{ level_key }} — {{ label_zh }} {{ label_de }}
 
-{% if levels.A1.vocabulary %}
-#### 📖 單字 Wortschatz
+{% if level_data.vocabulary %}
+<h4>📖 單字 Wortschatz</h4>
 
-| 單字 | 詞性 | 中文 | 例句 | 翻譯 | 🔊 |
-|:-----|:-----|:-----|:-----|:-----|:---:|
-{%- for v in levels.A1.vocabulary %}
-| **{{ v.word }}** | {{ v.article or "" }} | {{ v.meaning }} | {{ v.example | replace("|", "｜") }} | {{ v.example_zh | replace("|", "｜") }} | {% if v.time %}<span class="ts-link" data-time="{{ v.time }}">{{ v.time }}</span>{% endif %} |
+<div class="vocab-list">
+{%- for v in level_data.vocabulary %}
+<div class="vocab-card">
+<div class="vocab-head">
+<span class="vocab-word">{{ v.word }}</span>
+<span class="vocab-pos">{{ v.article or "" }}</span>
+<span class="vocab-meaning">{{ v.meaning }}</span>
+{% if v.time %}<span class="ts-link" data-time="{{ v.time }}">🔊 {{ v.time }}</span>{% endif %}
+</div>
+<div class="vocab-example">
+<div class="vocab-de">{{ v.example }}</div>
+<div class="vocab-ex-zh">{{ v.example_zh }}</div>
+</div>
+</div>
 {%- endfor %}
+</div>
 
 {% endif %}
-{% if levels.A1.grammar %}
-#### 📝 文法 Grammatik
+{% if level_data.grammar %}
+<h4>📝 文法 Grammatik</h4>
 
-{% for g in levels.A1.grammar %}
+{% for g in level_data.grammar %}
 <details>
 <summary><strong>{{ g.rule }}</strong>{% if g.time %} <span class="ts-link" data-time="{{ g.time }}">🔊 {{ g.time }}</span>{% endif %}</summary>
 
@@ -87,117 +102,32 @@ summary: "{{ topics[:3] | join('、') }}"
 
 {% endfor %}
 {% endif %}
-{% if levels.A1.patterns %}
-#### 💬 句型 Satzmuster
+{% if level_data.patterns %}
+<h4>💬 句型 Satzmuster</h4>
 
-{% for p in levels.A1.patterns %}
-- **{{ p.pattern }}**{% if p.time %} <span class="ts-link" data-time="{{ p.time }}">🔊 {{ p.time }}</span>{% endif %}
-
-  - 🇩🇪 {{ p.example }}
-  - 🇹🇼 {{ p.translation }}
-  - 💡 {{ p.note }}
+{% for p in level_data.patterns %}
+<div class="pattern-card">
+<div class="pattern-head">
+<strong>{{ p.pattern }}</strong>
+{% if p.time %}<span class="ts-link" data-time="{{ p.time }}">🔊 {{ p.time }}</span>{% endif %}
+</div>
+<div class="pattern-body">
+<div class="pattern-de">🇩🇪 {{ p.example }}</div>
+<div class="pattern-zh">🇹🇼 {{ p.translation }}</div>
+<div class="pattern-note">💡 {{ p.note }}</div>
+</div>
+</div>
 
 {% endfor %}
 {% endif %}
 
 </div>
 {% endif %}
+{% endmacro %}
 
-{% if levels.get("A2") and (levels.A2.vocabulary or levels.A2.grammar or levels.A2.patterns) %}
-<div class="cefr-content" data-level="A2">
-
-### 🟡 A2 — 初級區 Grundstufe
-
-{% if levels.A2.vocabulary %}
-#### 📖 單字 Wortschatz
-
-| 單字 | 詞性 | 中文 | 例句 | 翻譯 | 🔊 |
-|:-----|:-----|:-----|:-----|:-----|:---:|
-{%- for v in levels.A2.vocabulary %}
-| **{{ v.word }}** | {{ v.article or "" }} | {{ v.meaning }} | {{ v.example | replace("|", "｜") }} | {{ v.example_zh | replace("|", "｜") }} | {% if v.time %}<span class="ts-link" data-time="{{ v.time }}">{{ v.time }}</span>{% endif %} |
-{%- endfor %}
-
-{% endif %}
-{% if levels.A2.grammar %}
-#### 📝 文法 Grammatik
-
-{% for g in levels.A2.grammar %}
-<details>
-<summary><strong>{{ g.rule }}</strong>{% if g.time %} <span class="ts-link" data-time="{{ g.time }}">🔊 {{ g.time }}</span>{% endif %}</summary>
-
-> **德文**：{{ g.german }}
->
-> **中文**：{{ g.chinese }}
-
-{{ g.explanation }}
-
-</details>
-
-{% endfor %}
-{% endif %}
-{% if levels.A2.patterns %}
-#### 💬 句型 Satzmuster
-
-{% for p in levels.A2.patterns %}
-- **{{ p.pattern }}**{% if p.time %} <span class="ts-link" data-time="{{ p.time }}">🔊 {{ p.time }}</span>{% endif %}
-
-  - 🇩🇪 {{ p.example }}
-  - 🇹🇼 {{ p.translation }}
-  - 💡 {{ p.note }}
-
-{% endfor %}
-{% endif %}
-
-</div>
-{% endif %}
-
-{% if levels.get("B1") and (levels.B1.vocabulary or levels.B1.grammar or levels.B1.patterns) %}
-<div class="cefr-content" data-level="B1">
-
-### 🔴 B1 — 中級區 Mittelstufe
-
-{% if levels.B1.vocabulary %}
-#### 📖 單字 Wortschatz
-
-| 單字 | 詞性 | 中文 | 例句 | 翻譯 | 🔊 |
-|:-----|:-----|:-----|:-----|:-----|:---:|
-{%- for v in levels.B1.vocabulary %}
-| **{{ v.word }}** | {{ v.article or "" }} | {{ v.meaning }} | {{ v.example | replace("|", "｜") }} | {{ v.example_zh | replace("|", "｜") }} | {% if v.time %}<span class="ts-link" data-time="{{ v.time }}">{{ v.time }}</span>{% endif %} |
-{%- endfor %}
-
-{% endif %}
-{% if levels.B1.grammar %}
-#### 📝 文法 Grammatik
-
-{% for g in levels.B1.grammar %}
-<details>
-<summary><strong>{{ g.rule }}</strong>{% if g.time %} <span class="ts-link" data-time="{{ g.time }}">🔊 {{ g.time }}</span>{% endif %}</summary>
-
-> **德文**：{{ g.german }}
->
-> **中文**：{{ g.chinese }}
-
-{{ g.explanation }}
-
-</details>
-
-{% endfor %}
-{% endif %}
-{% if levels.B1.patterns %}
-#### 💬 句型 Satzmuster
-
-{% for p in levels.B1.patterns %}
-- **{{ p.pattern }}**{% if p.time %} <span class="ts-link" data-time="{{ p.time }}">🔊 {{ p.time }}</span>{% endif %}
-
-  - 🇩🇪 {{ p.example }}
-  - 🇹🇼 {{ p.translation }}
-  - 💡 {{ p.note }}
-
-{% endfor %}
-{% endif %}
-
-</div>
-{% endif %}
+{{ render_level("A1", levels.get("A1"), "🟢", "初學者區", "Anfänger") }}
+{{ render_level("A2", levels.get("A2"), "🟡", "初級區", "Grundstufe") }}
+{{ render_level("B1", levels.get("B1"), "🔴", "中級區", "Mittelstufe") }}
 
 ---
 

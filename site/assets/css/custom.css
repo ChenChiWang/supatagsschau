@@ -151,7 +151,6 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
 }
 
-/* Tab 等級色彩 */
 .cefr-tab[data-level="A1"].active {
   color: #4caf50;
   border-top: 3px solid #4caf50;
@@ -177,12 +176,11 @@ h1, h2, h3, h4, h5, h6 {
   display: block;
 }
 
-/* CEFR 區域標題層次 */
+/* CEFR 區域標題 */
 .cefr-content h3 {
   font-size: 1.2rem;
   margin-top: 0;
   margin-bottom: 1.25rem;
-  letter-spacing: -0.01em;
 }
 
 .cefr-content h4 {
@@ -193,7 +191,6 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--primary);
 }
 
-/* 第一個 h4 緊跟 h3 時，不需要太大上邊距 */
 .cefr-content h3 + h4 {
   margin-top: 0.75rem;
 }
@@ -224,11 +221,29 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1rem;
 }
 
-.cefr-content[data-level="summary"] h4 {
-  margin-top: 1.5rem;
+.cefr-content[data-level="summary"] ul {
+  padding-left: 0;
+  list-style: none;
 }
 
-/* 摘要底部學習提示 */
+.cefr-content[data-level="summary"] li {
+  position: relative;
+  padding-left: 0.75rem;
+  margin-bottom: 0.625rem;
+  line-height: 1.75;
+}
+
+.cefr-content[data-level="summary"] li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
 .cefr-hint {
   font-size: 0.8125rem;
   color: var(--secondary);
@@ -238,78 +253,148 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.7;
 }
 
-/* === 表格通用 === */
-table {
-  border-collapse: collapse;
-  width: 100%;
+/* === 逐字稿 — 列表式排版 === */
+.transcript-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.transcript-row {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.transcript-row:last-child {
+  border-bottom: none;
+}
+
+.transcript-row > .ts-link {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.transcript-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.transcript-de {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.transcript-zh {
   font-size: 0.875rem;
-  line-height: 1.55;
-}
-
-table th,
-table td {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  text-align: left;
-  vertical-align: top;
-}
-
-table th {
-  background: var(--code-bg);
-  font-weight: 600;
-  font-size: 0.8125rem;
-  white-space: nowrap;
-}
-
-/* 表格斑馬紋 */
-table tbody tr:nth-child(even) {
-  background: color-mix(in srgb, var(--code-bg) 50%, transparent);
-}
-
-/* === 單字表格優化 === */
-/* 橫滾容器 — 讓寬表格在手機上可滑動 */
-.cefr-content {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* 單字欄 — 粗體不換行 */
-.cefr-content table td:first-child {
-  white-space: nowrap;
-}
-
-/* 詞性欄 — 縮小、灰色 */
-.cefr-content table td:nth-child(2) {
-  white-space: nowrap;
   color: var(--secondary);
+  line-height: 1.6;
+  margin-top: 0.2rem;
+}
+
+/* === 單字 — 卡片式排版 === */
+.vocab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.vocab-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+}
+
+.vocab-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.vocab-word {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.vocab-pos {
+  font-size: 0.8125rem;
+  color: var(--secondary);
+  font-style: italic;
+}
+
+.vocab-meaning {
+  font-size: 0.9375rem;
+}
+
+.vocab-head > .ts-link {
+  margin-left: auto;
   font-size: 0.8125rem;
 }
 
-/* 中文欄 — 不換行 */
-.cefr-content table td:nth-child(3) {
-  white-space: nowrap;
+.vocab-example {
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--border);
 }
 
-/* 🔊 欄 */
-.cefr-content table td:last-child {
-  white-space: nowrap;
-  text-align: center;
-}
-
-/* === 逐字稿表格 === */
-.transcript-table {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.transcript-table table {
+.vocab-de {
   font-size: 0.875rem;
+  line-height: 1.65;
 }
 
-.transcript-table td:first-child {
-  width: 55px;
-  white-space: nowrap;
-  vertical-align: top;
+.vocab-ex-zh {
+  font-size: 0.8125rem;
+  color: var(--secondary);
+  line-height: 1.6;
+  margin-top: 0.125rem;
+}
+
+/* === 句型 — 卡片式排版 === */
+.pattern-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background: var(--code-bg);
+  margin-bottom: 0.625rem;
+}
+
+.pattern-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-head strong {
+  color: var(--primary);
+  font-size: 0.9375rem;
+}
+
+.pattern-body {
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--border);
+}
+
+.pattern-de {
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.pattern-zh {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  margin-top: 0.125rem;
+}
+
+.pattern-note {
+  font-size: 0.8125rem;
+  color: var(--secondary);
+  line-height: 1.6;
+  margin-top: 0.25rem;
 }
 
 /* === 時間戳連結 === */
@@ -347,7 +432,6 @@ details[open] summary {
   border-bottom: 1px solid var(--border);
 }
 
-/* 文法區塊 blockquote */
 details blockquote {
   margin: 0.75rem 0;
   padding: 0.75rem 1rem;
@@ -361,47 +445,33 @@ details blockquote p {
   margin: 0.25rem 0;
 }
 
-/* 文法解說文字 */
 details > p {
   font-size: 0.875rem;
   line-height: 1.75;
   color: var(--secondary);
 }
 
-/* === 句型列表 — 卡片風格 === */
-.cefr-content > ul {
-  padding-left: 0;
-  list-style: none;
-}
-
-.cefr-content > ul > li {
-  margin-bottom: 1rem;
-  padding: 1rem 1.125rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--code-bg);
-}
-
-.cefr-content > ul > li > strong,
-.post-content ul li strong {
-  color: var(--primary);
-  font-size: 0.9375rem;
-}
-
-/* 句型子列表（🇩🇪/🇹🇼/💡） */
-.cefr-content > ul > li > ul {
-  margin-top: 0.625rem;
-  padding-left: 0;
-  list-style: none;
-}
-
-.cefr-content > ul > li > ul > li {
+/* === 表格通用（摘要統計等） === */
+table {
+  border-collapse: collapse;
+  width: 100%;
   font-size: 0.875rem;
-  line-height: 1.75;
-  margin-bottom: 0.125rem;
-  padding: 0;
-  border: none;
-  background: transparent;
+  line-height: 1.55;
+}
+
+table th,
+table td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+table th {
+  background: var(--code-bg);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  white-space: nowrap;
 }
 
 /* === 頁尾來源 === */
@@ -434,7 +504,7 @@ details > p {
     font-size: 0.9em;
   }
 
-  /* Tab 按鈕 — 縮小間距，可橫滾 */
+  /* Tab 按鈕 */
   .cefr-tabs {
     gap: 0;
     margin-top: 1.25rem;
@@ -445,29 +515,6 @@ details > p {
     border-radius: 4px 4px 0 0;
   }
 
-  /* 表格 — 設定最小寬度以啟動橫滾 */
-  .cefr-content table {
-    min-width: 580px;
-  }
-
-  .transcript-table table {
-    min-width: 520px;
-  }
-
-  .cefr-content[data-level="summary"] table {
-    min-width: unset;
-    max-width: 100%;
-  }
-
-  table {
-    font-size: 0.8125rem;
-  }
-
-  table th,
-  table td {
-    padding: 0.375rem 0.5rem;
-  }
-
   /* CEFR 標題 */
   .cefr-content h3 {
     font-size: 1.1rem;
@@ -476,6 +523,52 @@ details > p {
   .cefr-content h4 {
     font-size: 0.9375rem;
     margin-top: 1.5rem;
+  }
+
+  /* 逐字稿 */
+  .transcript-row {
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+  .transcript-de {
+    font-size: 0.875rem;
+  }
+  .transcript-zh {
+    font-size: 0.8125rem;
+  }
+
+  /* 單字卡片 */
+  .vocab-card {
+    padding: 0.625rem 0.75rem;
+    border-radius: 6px;
+  }
+  .vocab-word {
+    font-size: 0.9375rem;
+  }
+  .vocab-meaning {
+    font-size: 0.875rem;
+  }
+  .vocab-de {
+    font-size: 0.8125rem;
+  }
+  .vocab-ex-zh {
+    font-size: 0.75rem;
+  }
+
+  /* 句型卡片 */
+  .pattern-card {
+    padding: 0.625rem 0.75rem;
+    border-radius: 6px;
+  }
+  .pattern-head strong {
+    font-size: 0.875rem;
+  }
+  .pattern-de,
+  .pattern-zh {
+    font-size: 0.8125rem;
+  }
+  .pattern-note {
+    font-size: 0.75rem;
   }
 
   /* 文法折疊 */
@@ -493,20 +586,6 @@ details > p {
   }
   details > p {
     font-size: 0.8125rem;
-  }
-
-  /* 句型卡片 */
-  .cefr-content > ul > li {
-    padding: 0.75rem 0.875rem;
-    margin-bottom: 0.75rem;
-    border-radius: 6px;
-  }
-  .cefr-content > ul > li > strong {
-    font-size: 0.875rem;
-  }
-  .cefr-content > ul > li > ul > li {
-    font-size: 0.8125rem;
-    line-height: 1.7;
   }
 
   /* 摘要 */

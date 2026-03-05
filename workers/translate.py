@@ -103,11 +103,14 @@ def analyze_cefr(timestamped_transcript: str) -> dict:
 - 文法術語一律使用德文原文：Nominativ、Akkusativ、Dativ、Genitiv（不要用「第一格、第二格、第三格、第四格」）
 - 動詞搭配格位時寫法範例：「接 Akkusativ」「與 Dativ 搭配」「支配 Genitiv」
 
-另外，請在 JSON 最外層加一個 "summary_zh" 欄位，用 3-5 句繁體中文摘要本集新聞重點。
+另外，請在 JSON 最外層加一個 "summary_zh" 欄位，以 Markdown 條列式整理本集新聞重點摘要：
+- 每則新聞主題一個條目，用 `- **主題關鍵詞**：一句話摘要` 格式
+- 涵蓋所有報導主題，不限條數
+- 必須使用繁體中文（台灣用語）
 
 請只輸出 JSON，格式如下：
 {{
-  "summary_zh": "本集新聞的繁體中文摘要（3-5 句）",
+  "summary_zh": "- **主題一**：摘要內容\n- **主題二**：摘要內容\n...",
   "A1": {{
     "vocabulary": [
       {{"word": "德文單字", "article": "der/die/das（名詞才需要）", "meaning": "中文意思", "example": "逐字稿中的例句", "example_zh": "例句翻譯", "time": "MM:SS"}}
