@@ -6,7 +6,7 @@ tags:
   - "Fünfter Tag im Nahost-Krieg: Angriffe gehen weiter"
   - "Aktuelle Stunde im Bundestag zum Krieg im Nahen Osten"
   - "Bundesregierung plant keine Spritpreisbremse"
-  - ""Made in Europe": EU-Kommission will Industrie in Europa stärken"
+  - "'Made in Europe': EU-Kommission will Industrie in Europa stärken"
   - "Neues Regierungsbündnis aus SPD und CDU in Brandenburg stellt Koalitionsvertrag vor"
   - "Nach Diskussion über Israel: Berlinale-Chefin Tricia Tuttle bleibt im Amt"
   - "Vorgaben des Reformstaatsvertrags: ARD und ZDF bündeln Aufgaben und stellen zum Jahresende drei Sender ein"
