@@ -6,8 +6,9 @@ paginate = 10
 
 [params]
   env = "production"
-  description = "每天用 tagesschau 德語新聞學德文，AI 自動產生逐字稿、翻譯和 CEFR 分級學習內容"
+  description = "每天擷取 tagesschau 20 Uhr 新聞 Podcast<br>為中文新聞閱讀與德文學習"
   author = "每日德語"
+  images = ["/fh_feature.jpg"]
   defaultTheme = "auto"
   ShowReadingTime = true
   ShowBreadCrumbs = true
