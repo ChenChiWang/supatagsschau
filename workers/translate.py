@@ -4,6 +4,7 @@
 import json
 import logging
 import os
+import re
 
 import requests
 
@@ -14,8 +15,19 @@ logger = logging.getLogger(__name__)
 # 每批次最大 segment 數（約 2-3 分鐘的內容）
 BATCH_SIZE = 8
 
+# CEFR 分析需要更大的 context 和 output
+CEFR_NUM_CTX = 32768
+CEFR_NUM_PREDICT = 16384
+CEFR_MAX_RETRIES = 2
 
-def call_ollama(prompt: str, temperature: float = 0.3, model: str = None) -> str:
+
+def call_ollama(
+    prompt: str,
+    temperature: float = 0.3,
+    model: str = None,
+    num_ctx: int = 8192,
+    num_predict: int = 8192,
+) -> str:
     """呼叫 Ollama API（chat endpoint），回傳生成的文字。"""
     use_model = model or config.OLLAMA_MODEL
     resp = requests.post(
@@ -29,14 +41,98 @@ def call_ollama(prompt: str, temperature: float = 0.3, model: str = None) -> str
             "think": False,
             "options": {
                 "temperature": temperature,
-                "num_predict": 8192,
-                "num_ctx": 8192,
+                "num_predict": num_predict,
+                "num_ctx": num_ctx,
             },
         },
         timeout=1800,
     )
     resp.raise_for_status()
     return resp.json()["message"]["content"]
+
+
+def repair_json(text: str) -> str:
+    """嘗試修復不完整的 JSON（截斷造成的未關閉括號）。"""
+    # 移除 markdown code block 標記
+    text = re.sub(r"^```json\s*", "", text.strip())
+    text = re.sub(r"\s*```$", "", text.strip())
+
+    # 找到最外層 { 的位置
+    start = text.find("{")
+    if start == -1:
+        return text
+
+    text = text[start:]
+
+    # 計算未關閉的括號
+    stack = []
+    in_string = False
+    escape = False
+    last_valid = 0
+
+    for i, ch in enumerate(text):
+        if escape:
+            escape = False
+            continue
+        if ch == "\\":
+            escape = True
+            continue
+        if ch == '"' and not escape:
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch in "{[":
+            stack.append(ch)
+            last_valid = i
+        elif ch in "}]":
+            if stack:
+                stack.pop()
+            last_valid = i
+
+    if not stack:
+        # JSON 已完整，直接回傳
+        return text
+
+    # 截斷到最後一個完整的 value 結尾（逗號或括號之後）
+    # 然後補上缺少的關閉括號
+    truncated = text[:last_valid + 1]
+
+    # 移除尾部不完整的 key-value（如 "word": "abc 被截斷）
+    # 往回找到最後一個完整的結構結束點
+    truncated = re.sub(r',\s*"[^"]*"?\s*:?\s*("([^"\\]|\\.)*)?$', "", truncated)
+    truncated = re.sub(r',\s*\{[^}]*$', "", truncated)
+    truncated = re.sub(r',\s*$', "", truncated)
+
+    # 重新計算需要補上的括號
+    stack2 = []
+    in_str2 = False
+    esc2 = False
+    for ch in truncated:
+        if esc2:
+            esc2 = False
+            continue
+        if ch == "\\":
+            esc2 = True
+            continue
+        if ch == '"':
+            in_str2 = not in_str2
+            continue
+        if in_str2:
+            continue
+        if ch in "{[":
+            stack2.append(ch)
+        elif ch in "}]":
+            if stack2:
+                stack2.pop()
+
+    # 補上關閉括號
+    closing = ""
+    for opener in reversed(stack2):
+        closing += "]" if opener == "[" else "}"
+
+    repaired = truncated + closing
+    return repaired
 
 
 def translate_batch(segments: list[dict]) -> list[dict]:
@@ -81,7 +177,7 @@ def translate_batch(segments: list[dict]) -> list[dict]:
 
 
 def analyze_cefr(timestamped_transcript: str) -> dict:
-    """分析全文，按 CEFR 等級提取學習內容。"""
+    """分析全文，按 CEFR 等級提取學習內容。含重試和 JSON 修復。"""
     prompt = f"""你是專業的德語教學專家。請分析以下德語新聞逐字稿，按 CEFR 等級提取學習內容。
 
 分級標準：
@@ -108,9 +204,9 @@ def analyze_cefr(timestamped_transcript: str) -> dict:
 - 涵蓋所有報導主題，不限條數
 - 必須使用繁體中文（台灣用語）
 
-請只輸出 JSON，格式如下：
+請只輸出 JSON，不要加 markdown code block 標記，格式如下：
 {{
-  "summary_zh": "- **主題一**：摘要內容\n- **主題二**：摘要內容\n...",
+  "summary_zh": "- **主題一**：摘要內容\\n- **主題二**：摘要內容\\n...",
   "A1": {{
     "vocabulary": [
       {{"word": "德文單字", "article": "der/die/das（名詞才需要）", "meaning": "中文意思", "example": "逐字稿中的例句", "example_zh": "例句翻譯", "time": "MM:SS"}}
@@ -129,25 +225,47 @@ def analyze_cefr(timestamped_transcript: str) -> dict:
 德語新聞逐字稿（含時間戳）：
 {timestamped_transcript}"""
 
-    result = call_ollama(prompt, temperature=0.2)
+    fallback = {
+        "summary_zh": "",
+        "A1": {"vocabulary": [], "grammar": [], "patterns": []},
+        "A2": {"vocabulary": [], "grammar": [], "patterns": []},
+        "B1": {"vocabulary": [], "grammar": [], "patterns": []},
+    }
 
-    try:
-        start_idx = result.index("{")
-        end_idx = result.rindex("}") + 1
-        data = json.loads(result[start_idx:end_idx])
-    except (ValueError, json.JSONDecodeError) as e:
-        logger.error(f"CEFR 分析結果 JSON 解析失敗：{e}")
-        logger.error(f"原始回應：{result[:500]}")
-        data = {
-            "summary_zh": "",
-            "A1": {"vocabulary": [], "grammar": [], "patterns": []},
-            "A2": {"vocabulary": [], "grammar": [], "patterns": []},
-            "B1": {"vocabulary": [], "grammar": [], "patterns": []},
-        }
+    for attempt in range(1, CEFR_MAX_RETRIES + 1):
+        logger.info(f"CEFR 分析第 {attempt}/{CEFR_MAX_RETRIES} 次嘗試...")
+        result = call_ollama(
+            prompt,
+            temperature=0.2,
+            num_ctx=CEFR_NUM_CTX,
+            num_predict=CEFR_NUM_PREDICT,
+        )
 
-    # 分離 summary_zh 和等級資料
-    summary_zh = data.pop("summary_zh", "")
-    return {"summary_zh": summary_zh, "levels": data}
+        # 第一次嘗試：直接解析
+        try:
+            start_idx = result.index("{")
+            end_idx = result.rindex("}") + 1
+            data = json.loads(result[start_idx:end_idx])
+            logger.info("CEFR JSON 解析成功")
+            summary_zh = data.pop("summary_zh", "")
+            return {"summary_zh": summary_zh, "levels": data}
+        except (ValueError, json.JSONDecodeError) as e:
+            logger.warning(f"CEFR JSON 直接解析失敗：{e}")
+
+        # 第二次嘗試：修復 JSON
+        try:
+            repaired = repair_json(result)
+            data = json.loads(repaired)
+            logger.info("CEFR JSON 修復後解析成功")
+            summary_zh = data.pop("summary_zh", "")
+            return {"summary_zh": summary_zh, "levels": data}
+        except (ValueError, json.JSONDecodeError) as e2:
+            logger.warning(f"CEFR JSON 修復後仍失敗：{e2}")
+            logger.error(f"原始回應前 500 字：{result[:500]}")
+
+    logger.error("CEFR 分析全部重試失敗，使用空白降級處理")
+    summary_zh = fallback.pop("summary_zh", "")
+    return {"summary_zh": summary_zh, "levels": fallback}
 
 
 def translate_and_analyze(segments: list[dict]) -> dict:
