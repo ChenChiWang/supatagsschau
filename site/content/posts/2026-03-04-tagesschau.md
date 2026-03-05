@@ -659,4 +659,4 @@ B1 級重點在於理解 zu + Infinitiv 結構，表達目的時使用 um...zu..
 ---
 
 *📺 來源：[tagesschau.de](https://www.tagesschau.de/) | [本集原始連結](https://www.tagesschau.de/tagesschau_20_uhr/audio-434730.html)*
-*⚠️ 本頁內容由 AI 自動產生，僅供語言學習參考，不代表 ARD/tagesschau 立場。*
+*⚠️ 本頁內容僅供語言學習參考，不代表 ARD/tagesschau 立場。*

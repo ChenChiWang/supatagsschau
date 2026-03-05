@@ -19,7 +19,7 @@ paginate = 10
   [params.profileMode]
     enabled = true
     title = "每日德語"
-    subtitle = "每天自動擷取 tagesschau 20 Uhr 新聞 Podcast，透過 AI 產生德語逐字稿、繁中翻譯和 CEFR 分級學習內容。"
+    subtitle = "每天擷取 tagesschau 20 Uhr 新聞 Podcast 為中文閱讀新聞與學習德文材料"
 
     [[params.profileMode.buttons]]
       name = "📰 所有文章"
