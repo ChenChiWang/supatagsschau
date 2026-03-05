@@ -6,7 +6,9 @@
 
 環境變數：
   RESUME_FROM=<step>  從指定步驟恢復（跳過之前的步驟，使用快取資料）
-                      可選值：2（跳過 podcast）、3（跳過轉錄）、4（跳過翻譯）、5（只推送）
+                      可選值：2（跳過 podcast）、3（跳過轉錄）、
+                             3.5（跳過翻譯，只重跑 CEFR）、
+                             4（跳過翻譯+CEFR）、5（只推送）
 """
 
 import json
@@ -22,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import config
 from podcast import fetch_podcast
 from transcribe import transcribe
-from translate import translate_and_analyze
+from translate import translate_batch, analyze_cefr, BATCH_SIZE
 from generate import generate_post
 from git_ops import publish_post
 
@@ -38,6 +40,9 @@ CACHE_DIR = config.OUTPUT_DIR / "cache"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_PODCAST = CACHE_DIR / "podcast_meta.json"
 CACHE_SEGMENTS = CACHE_DIR / "segments.json"
+CACHE_TRANSLATED = CACHE_DIR / "translated_segments.json"
+CACHE_CEFR = CACHE_DIR / "cefr_result.json"
+# 舊版合併快取（相容用）
 CACHE_TRANSLATION = CACHE_DIR / "translation_result.json"
 
 
@@ -73,8 +78,25 @@ def deserialize_podcast_meta(data: dict) -> dict:
     return d
 
 
+def run_translation(segments: list[dict]) -> list[dict]:
+    """分批翻譯所有 segments。"""
+    max_batches = int(os.getenv("MAX_BATCHES", "0")) or None
+    all_translated = []
+    for i in range(0, len(segments), BATCH_SIZE):
+        batch = segments[i:i + BATCH_SIZE]
+        batch_num = i // BATCH_SIZE + 1
+        total_batches = (len(segments) + BATCH_SIZE - 1) // BATCH_SIZE
+        if max_batches and batch_num > max_batches:
+            logger.info(f"測試模式：已達 {max_batches} 批上限，跳過剩餘批次")
+            break
+        logger.info(f"翻譯第 {batch_num}/{total_batches} 批（{len(batch)} segments）")
+        translated = translate_batch(batch)
+        all_translated.extend(translated)
+    return all_translated
+
+
 def main():
-    resume_from = int(os.getenv("RESUME_FROM", "0"))
+    resume_from = float(os.getenv("RESUME_FROM", "0"))
     if resume_from:
         logger.info(f"=== Tagesschau 從步驟 {resume_from} 恢復 ===")
     else:
@@ -102,21 +124,52 @@ def main():
         save_cache(CACHE_SEGMENTS, segments)
     logger.info(f"  共 {len(segments)} 個 segments")
 
-    # 3. 翻譯 + CEFR 分析
-    if resume_from >= 4:
-        logger.info("🤖 Step 3: 載入快取...")
-        translation_result = load_cache(CACHE_TRANSLATION)
+    # 3a. 翻譯
+    if resume_from >= 3.5:
+        # 跳過翻譯，從快取或舊合併快取載入
+        logger.info("🔤 Step 3a: 載入翻譯快取...")
+        if CACHE_TRANSLATED.exists():
+            translated_segments = load_cache(CACHE_TRANSLATED)
+        elif CACHE_TRANSLATION.exists():
+            old_cache = load_cache(CACHE_TRANSLATION)
+            translated_segments = old_cache["segments"]
+            logger.info("  （從舊版合併快取提取翻譯）")
+        else:
+            raise FileNotFoundError("找不到翻譯快取，請先跑完翻譯")
+    elif resume_from >= 4:
+        logger.info("🔤 Step 3a: 載入翻譯快取...")
+        translated_segments = load_cache(CACHE_TRANSLATED)
     else:
-        logger.info("🤖 Step 3: 翻譯 + CEFR 分析...")
-        translation_result = translate_and_analyze(segments)
-        save_cache(CACHE_TRANSLATION, translation_result)
-    logger.info(f"  翻譯 segments：{len(translation_result['segments'])}")
+        logger.info("🔤 Step 3a: 翻譯...")
+        translated_segments = run_translation(segments)
+        save_cache(CACHE_TRANSLATED, translated_segments)
+    logger.info(f"  翻譯 segments：{len(translated_segments)}")
+
+    # 3b. CEFR 分析
+    if resume_from >= 4:
+        logger.info("📊 Step 3b: 載入 CEFR 快取...")
+        cefr_result = load_cache(CACHE_CEFR)
+    else:
+        logger.info("📊 Step 3b: CEFR 學習內容分析...")
+        timestamped_transcript = "\n".join(
+            f"[{s['start']}] {s['text']}" for s in segments
+        )
+        cefr_result = analyze_cefr(timestamped_transcript)
+        save_cache(CACHE_CEFR, cefr_result)
+
     for level in ["A1", "A2", "B1"]:
-        data = translation_result["levels"].get(level, {})
+        data = cefr_result["levels"].get(level, {})
         v = len(data.get("vocabulary", []))
         g = len(data.get("grammar", []))
         p = len(data.get("patterns", []))
         logger.info(f"  {level}：{v} 單字 / {g} 文法 / {p} 句型")
+
+    # 合併翻譯結果
+    translation_result = {
+        "segments": translated_segments,
+        "levels": cefr_result["levels"],
+        "summary_zh": cefr_result.get("summary_zh", ""),
+    }
 
     # 4. 產生 Hugo Markdown
     logger.info("📄 Step 4: 產生 Hugo 文章...")
