@@ -186,7 +186,7 @@ def translate_batch(segments: list[dict]) -> list[dict]:
 {segments_text}"""
 
     for attempt in range(1, 3):
-        result = call_ollama(prompt, model=config.OLLAMA_MODEL_FAST, num_predict=4096)
+        result = call_ollama(prompt, model=config.OLLAMA_MODEL_FAST, num_predict=8192)
         try:
             start_idx = result.index("[")
             end_idx = result.rindex("]") + 1

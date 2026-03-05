@@ -1,5 +1,6 @@
 services:
   pipeline:
+    container_name: pipeline
     build:
       context: ../workers
     env_file: .env
