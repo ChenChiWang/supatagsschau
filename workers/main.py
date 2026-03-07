@@ -115,9 +115,9 @@ def main():
     logger.info(f"  音訊：{podcast_meta['audio_url']}")
     logger.info(f"  影片：{podcast_meta['video_url']}")
 
-    # 1b. 計算影片偏移量
-    if resume_from >= 2:
-        video_offset = podcast_meta.get("video_offset", 0.0)
+    # 1b. 計算影片偏移量（快取中有值且不需重算才跳過）
+    if podcast_meta.get("video_offset") is not None and resume_from >= 3:
+        video_offset = podcast_meta["video_offset"]
         logger.info(f"  影片偏移：{video_offset}s（從快取）")
     else:
         logger.info("🔀 Step 1b: 計算影片偏移量...")
