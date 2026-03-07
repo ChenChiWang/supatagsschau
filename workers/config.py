@@ -25,3 +25,7 @@ VIDEO_RSS_URL = "https://www.tagesschau.de/multimedia/sendung/tagesschau_20_uhr/
 # 重試設定
 MAX_RETRIES = 6
 RETRY_INTERVAL_SEC = 300  # 5 分鐘
+
+# Telegram 通知
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")

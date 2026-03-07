@@ -28,6 +28,7 @@ from translate import translate_batch, analyze_cefr, BATCH_SIZE
 from generate import generate_post
 from git_ops import publish_post
 from align import download_and_align
+import notify
 
 logging.basicConfig(
     level=logging.INFO,
@@ -102,6 +103,7 @@ def main():
         logger.info(f"=== Tagesschau 從步驟 {resume_from} 恢復 ===")
     else:
         logger.info("=== Tagesschau 每日處理開始 ===")
+        notify.send("🚀 *每日德語 Pipeline 開始*")
 
     # 1. 取得 Podcast metadata + 下載 MP3
     if resume_from >= 2:
@@ -114,6 +116,7 @@ def main():
     logger.info(f"  標題：{podcast_meta['title']}")
     logger.info(f"  音訊：{podcast_meta['audio_url']}")
     logger.info(f"  影片：{podcast_meta['video_url']}")
+    notify.send(f"📡 *Step 1 完成*\n{podcast_meta['title']}")
 
     # 1b. 計算影片偏移量（快取中有值且不需重算才跳過）
     if podcast_meta.get("video_offset") is not None and resume_from >= 3:
@@ -142,6 +145,7 @@ def main():
         segments = transcribe(podcast_meta["mp3_path"])
         save_cache(CACHE_SEGMENTS, segments)
     logger.info(f"  共 {len(segments)} 個 segments")
+    notify.send(f"🎙️ *Step 2 轉錄完成*\n共 {len(segments)} 個 segments")
 
     # 3a. 翻譯
     if resume_from >= 3.5:
@@ -160,6 +164,7 @@ def main():
         translated_segments = run_translation(segments)
         save_cache(CACHE_TRANSLATED, translated_segments)
     logger.info(f"  翻譯 segments：{len(translated_segments)}")
+    notify.send(f"🔤 *Step 3a 翻譯完成*\n{len(translated_segments)} segments")
 
     # 3b. CEFR 分析
     if resume_from >= 4:
@@ -173,12 +178,15 @@ def main():
         cefr_result = analyze_cefr(timestamped_transcript)
         save_cache(CACHE_CEFR, cefr_result)
 
+    cefr_summary_parts = []
     for level in ["A1", "A2", "B1"]:
         data = cefr_result["levels"].get(level, {})
         v = len(data.get("vocabulary", []))
         g = len(data.get("grammar", []))
         p = len(data.get("patterns", []))
         logger.info(f"  {level}：{v} 單字 / {g} 文法 / {p} 句型")
+        cefr_summary_parts.append(f"{level}: {v}詞/{g}文法/{p}句型")
+    notify.send(f"📊 *Step 3b CEFR 分析完成*\n" + " | ".join(cefr_summary_parts))
 
     # 合併翻譯結果
     translation_result = {
@@ -211,7 +219,18 @@ def main():
             logger.info(f"🗑️ 已刪除暫存 MP3：{mp3_path}")
 
     logger.info("=== 處理完成 ===")
+    pub_date_str = podcast_meta["pub_date"].strftime("%Y-%m-%d")
+    notify.send(
+        f"✅ *每日德語 Pipeline 完成*\n"
+        f"📅 {pub_date_str}\n"
+        f"🔗 https://supatagsschau.jwais.com/posts/{pub_date_str}-tagesschau/"
+    )
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logger.exception("Pipeline 執行失敗")
+        notify.send(f"❌ *Pipeline 執行失敗*\n`{e}`")
+        raise
