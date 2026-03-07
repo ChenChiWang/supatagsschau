@@ -27,6 +27,7 @@ from transcribe import transcribe
 from translate import translate_batch, analyze_cefr, BATCH_SIZE
 from generate import generate_post
 from git_ops import publish_post
+from align import download_and_align
 
 logging.basicConfig(
     level=logging.INFO,
@@ -114,6 +115,24 @@ def main():
     logger.info(f"  音訊：{podcast_meta['audio_url']}")
     logger.info(f"  影片：{podcast_meta['video_url']}")
 
+    # 1b. 計算影片偏移量
+    if resume_from >= 2:
+        video_offset = podcast_meta.get("video_offset", 0.0)
+        logger.info(f"  影片偏移：{video_offset}s（從快取）")
+    else:
+        logger.info("🔀 Step 1b: 計算影片偏移量...")
+        try:
+            video_offset = download_and_align(
+                str(podcast_meta["mp3_path"]),
+                podcast_meta["video_url"],
+            )
+        except Exception as e:
+            logger.warning(f"偏移計算失敗，使用 0：{e}")
+            video_offset = 0.0
+        podcast_meta["video_offset"] = video_offset
+        save_cache(CACHE_PODCAST, serialize_podcast_meta(podcast_meta))
+        logger.info(f"  影片偏移：{video_offset}s")
+
     # 2. Whisper 轉錄
     if resume_from >= 3:
         logger.info("🎙️ Step 2: 載入快取...")
@@ -170,6 +189,7 @@ def main():
 
     # 4. 產生 Hugo Markdown
     logger.info("📄 Step 4: 產生 Hugo 文章...")
+    podcast_meta["video_offset"] = video_offset
     md_path = generate_post(podcast_meta, translation_result)
 
     # 5. 推送到 Git repo

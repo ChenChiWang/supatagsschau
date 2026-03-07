@@ -14,12 +14,12 @@ function switchPlayer(mode) {
   if (video) video.pause();
   if (audio) audio.pause();
 
-  // 同步播放進度
+  // 同步播放進度（考慮影片偏移）
   if (mode === "video" && video && audio) {
-    video.currentTime = audio.currentTime;
+    video.currentTime = audio.currentTime + videoOffset;
   }
   if (mode === "audio" && audio && video) {
-    audio.currentTime = video.currentTime;
+    audio.currentTime = video.currentTime - videoOffset;
   }
 
   // 切換按鈕 active 狀態
@@ -69,7 +69,9 @@ function seekTo(seconds) {
   }
 
   if (activePlayer) {
-    activePlayer.currentTime = seconds;
+    // 影片模式時加上偏移量補償
+    var offset = (activePlayer === video) ? videoOffset : 0;
+    activePlayer.currentTime = seconds + offset;
     activePlayer.play();
   }
 }
@@ -77,6 +79,7 @@ function seekTo(seconds) {
 // --- 即時字幕 ---
 var segments = [];
 var lastSubtitleIdx = -1;
+var videoOffset = 0; // 影片相對於音訊的時間偏移（秒）
 
 function findSegmentAt(time) {
   for (var i = 0; i < segments.length; i++) {
@@ -114,7 +117,9 @@ function updateSubtitle(time) {
 }
 
 function onTimeUpdate() {
-  updateSubtitle(this.currentTime);
+  var video = document.getElementById("video-player");
+  var offset = (this === video) ? videoOffset : 0;
+  updateSubtitle(this.currentTime - offset);
 }
 
 // --- CEFR Tab 切換 ---
@@ -172,6 +177,12 @@ function setupMediaSession() {
 
 // --- 初始化 ---
 document.addEventListener("DOMContentLoaded", function () {
+  // 載入影片偏移量
+  var offsetEl = document.getElementById("video-offset");
+  if (offsetEl) {
+    videoOffset = parseFloat(offsetEl.value) || 0;
+  }
+
   // 載入 segments 資料
   var dataEl = document.getElementById("segments-data");
   if (dataEl) {

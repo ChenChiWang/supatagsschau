@@ -54,6 +54,7 @@ def generate_post(podcast_meta: dict, translation_result: dict) -> Path:
         topics=podcast_meta["topics"],
         active_levels=active_levels,
         video_url=podcast_meta["video_url"],
+        video_offset=podcast_meta.get("video_offset", 0.0),
         audio_url=podcast_meta["audio_url"],
         link=podcast_meta["link"],
         segments=translation_result["segments"],

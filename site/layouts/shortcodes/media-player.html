@@ -1,6 +1,7 @@
 {{/* 影片+音訊播放器，支援切換模式 + 即時字幕 */}}
 {{ $video_url := .Page.Params.video_url }}
 {{ $audio_url := .Page.Params.audio_url }}
+{{ $video_offset := .Page.Params.video_offset | default 0.0 }}
 
 <div class="media-player" id="media-player">
   <div class="player-controls">
@@ -26,6 +27,7 @@
   </div>
   {{ end }}
 
+  <input type="hidden" id="video-offset" value="{{ $video_offset }}">
   <div class="subtitle-bar" id="subtitle-bar">
     <span class="subtitle-time" id="subtitle-time"></span>
     <span class="subtitle-de" id="subtitle-de">點擊播放，字幕將即時顯示</span>
