@@ -72,8 +72,8 @@ def compute_offset(audio_path: str, video_path: str) -> float:
 
     offset_sec = -lag_samples / SAMPLE_RATE
 
-    # 合理範圍檢查（超過 30 秒的偏移不太可能）
-    if abs(offset_sec) > 30:
+    # 合理範圍檢查（超過 15 秒的偏移不太可能）
+    if abs(offset_sec) > 15:
         logger.warning(f"偵測到異常偏移 {offset_sec:.2f}s，可能比對失敗，回傳 0")
         return 0.0
 

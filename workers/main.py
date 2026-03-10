@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import sys
+import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -28,7 +29,12 @@ from translate import translate_batch, analyze_cefr, BATCH_SIZE
 from generate import generate_post
 from git_ops import publish_post
 from align import download_and_align
+from validate import validate_sources
 import notify
+
+# 來源品質檢查重試設定
+VALIDATE_MAX_RETRIES = 3
+VALIDATE_RETRY_INTERVAL_SEC = 300  # 5 分鐘
 
 logging.basicConfig(
     level=logging.INFO,
@@ -117,6 +123,41 @@ def main():
     logger.info(f"  音訊：{podcast_meta['audio_url']}")
     logger.info(f"  影片：{podcast_meta['video_url']}")
     notify.send(f"📡 *Step 1 完成*\n{podcast_meta['title']}")
+
+    # 1a. 來源品質檢查
+    if resume_from < 2:
+        logger.info("🔍 Step 1a: 來源品質檢查...")
+        for attempt in range(1, VALIDATE_MAX_RETRIES + 1):
+            result = validate_sources(
+                podcast_meta["audio_url"], podcast_meta["video_url"]
+            )
+            audio_dur = result["audio_duration"]
+            video_dur = result["video_duration"]
+            audio_str = f"{audio_dur:.0f}s" if audio_dur else "N/A"
+            video_str = f"{video_dur:.0f}s" if video_dur else "N/A"
+            if result["ok"]:
+                logger.info("來源品質檢查通過")
+                notify.send(
+                    f"🔍 *Step 1a 來源檢查通過* ✅\n"
+                    f"音訊：{audio_str} / 影片：{video_str}"
+                )
+                break
+            else:
+                for err in result["errors"]:
+                    logger.warning(f"  ⚠️ {err}")
+                error_text = "\n".join(result["errors"])
+                if attempt < VALIDATE_MAX_RETRIES:
+                    notify.send(
+                        f"⚠️ *Step 1a 來源檢查失敗（{attempt}/{VALIDATE_MAX_RETRIES}）*\n"
+                        f"{error_text}\n"
+                        f"{VALIDATE_RETRY_INTERVAL_SEC}s 後重試..."
+                    )
+                    time.sleep(VALIDATE_RETRY_INTERVAL_SEC)
+                else:
+                    notify.send(
+                        f"❌ *Step 1a 來源檢查失敗，Pipeline 中止*\n{error_text}"
+                    )
+                    raise RuntimeError(f"來源品質檢查失敗：{error_text}")
 
     # 1b. 計算影片偏移量（快取中有值且不需重算才跳過）
     if podcast_meta.get("video_offset") is not None and resume_from >= 3:
