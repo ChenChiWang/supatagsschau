@@ -265,7 +265,7 @@ def main():
     notify.send(
         f"✅ *每日德語 Pipeline 完成*\n"
         f"📅 {pub_date_str}\n"
-        f"🔗 https://supatagsschau.jwais.com/posts/{pub_date_str}-tagesschau/"
+        f"🔗 https://supatagesschau.jwais.com/posts/{pub_date_str}-tagesschau/"
     )
 
 

@@ -6,7 +6,7 @@ RUN apt-get update && \
 
 # Git commit 用的身份設定
 RUN git config --global user.name "tagesschau-bot" && \
-    git config --global user.email "bot@supatagsschau.jwais.com"
+    git config --global user.email "bot@supatagesschau.jwais.com"
 
 WORKDIR /app
 
